@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { Clock, Phone, Mail } from 'lucide-react';
+import { Clock, Phone, Mail, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Dining() {
+  const [showModal, setShowModal] = React.useState(false);
+
   return (
     <div className="min-h-screen bg-[#fcfdfc] w-full flex flex-col font-sans">
       
@@ -62,7 +64,10 @@ export default function Dining() {
               </div>
             </div>
 
-            <button className="px-8 py-3 bg-[#0a3a2a] text-white text-xs font-bold tracking-wider uppercase hover:bg-[#cba052] transition-colors inline-block">
+            <button 
+              onClick={() => setShowModal(true)}
+              className="px-8 py-3 bg-[#0a3a2a] text-white text-xs font-bold tracking-wider uppercase hover:bg-[#cba052] transition-colors inline-block"
+            >
               Đặt bàn ngay
             </button>
           </div>
@@ -149,6 +154,84 @@ export default function Dining() {
           </div>
         </div>
       </footer>
+
+      {/* Reservation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="bg-white max-w-5xl w-full p-8 md:p-12 relative shadow-2xl">
+            <button 
+              onClick={() => setShowModal(false)}
+              className="absolute top-6 right-6 text-neutral-400 hover:text-black transition-colors"
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-serif text-neutral-900 uppercase tracking-widest inline-block pb-4 border-b border-neutral-300">
+                NHÀ HÀNG
+              </h2>
+            </div>
+
+            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert("Đặt bàn thành công!"); setShowModal(false); }}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Row 1 */}
+                <select required className="w-full border border-neutral-200 p-3 text-sm text-neutral-600 outline-none focus:border-[#0a3a2a] bg-white">
+                  <option value="" disabled selected hidden>Danh xưng*</option>
+                  <option value="Anh">Anh</option>
+                  <option value="Chị">Chị</option>
+                  <option value="Ông">Ông</option>
+                  <option value="Bà">Bà</option>
+                </select>
+                <input required type="text" placeholder="Họ và Tên*" className="w-full border border-neutral-200 p-3 text-sm outline-none focus:border-[#0a3a2a] placeholder-neutral-400" />
+                <input required type="email" placeholder="Email*" className="w-full border border-neutral-200 p-3 text-sm outline-none focus:border-[#0a3a2a] placeholder-neutral-400" />
+
+                {/* Row 2 */}
+                <input required type="text" placeholder="Số điện thoại*" className="w-full border border-neutral-200 p-3 text-sm outline-none focus:border-[#0a3a2a] placeholder-neutral-400" />
+                <input required type="date" className="w-full border border-neutral-200 p-3 text-sm text-neutral-400 outline-none focus:border-[#0a3a2a] bg-white" />
+                <select required className="w-full border border-neutral-200 p-3 text-sm text-neutral-600 outline-none focus:border-[#0a3a2a] bg-white">
+                  <option value="" disabled selected hidden>Số lượng người*</option>
+                  <option value="1">1 Người</option>
+                  <option value="2">2 Người</option>
+                  <option value="3">3 Người</option>
+                  <option value="4">4 Người</option>
+                  <option value="5">5 Người</option>
+                  <option value="6+">6+ Người</option>
+                </select>
+
+                {/* Row 3 */}
+                <select required className="w-full border border-neutral-200 p-3 text-sm text-neutral-600 outline-none focus:border-[#0a3a2a] bg-white">
+                  <option value="" disabled selected hidden>Số lượng bàn*</option>
+                  <option value="1">1 Bàn</option>
+                  <option value="2">2 Bàn</option>
+                  <option value="3">3 Bàn</option>
+                  <option value="4">4 Bàn</option>
+                  <option value="5+">5+ Bàn</option>
+                </select>
+                <select required className="w-full border border-neutral-200 p-3 text-sm text-neutral-600 outline-none focus:border-[#0a3a2a] bg-white">
+                  <option value="" disabled selected hidden>Giờ*</option>
+                  {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22].map(h => (
+                    <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <select className="w-full border border-neutral-200 p-3 text-sm text-neutral-600 outline-none focus:border-[#0a3a2a] bg-white">
+                  <option value="" disabled selected hidden>Phút</option>
+                  {['00', '15', '30', '45'].map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <textarea placeholder="Lời nhắn" rows={4} className="w-full border border-neutral-200 p-3 text-sm outline-none focus:border-[#0a3a2a] placeholder-neutral-400 resize-none"></textarea>
+
+              <div className="text-center pt-4">
+                <button type="submit" className="bg-[#111] text-white px-8 py-3 text-sm font-medium hover:bg-black transition-colors border border-[#111]">
+                  Hoàn tất Đặt bàn
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

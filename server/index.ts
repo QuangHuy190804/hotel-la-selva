@@ -4,7 +4,9 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { connectDB } from "./db.js";
 import dotenv from "dotenv";
-import { Room } from "./models/Room.js";
+import { seedDatabase } from "./seed.js";
+import apiRouter from "./routes/api.js";
+import authRouter from "./routes/auth.js";
 
 dotenv.config();
 
@@ -13,25 +15,19 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   await connectDB();
+  await seedDatabase();
   const app = express();
   const PORT = 3000;
+
+  app.use(express.json());
 
   // API routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", hotel: "La Selva" });
   });
 
-  // Mock API for rooms (to demonstrate server-side)
-  app.get("/api/rooms", async (req, res) => {
-    try {
-      // Fetch rooms from database if connected
-      const rooms = await Room.find();
-      res.json({ message: "Welcome to La Selva API", rooms });
-    } catch (error) {
-      console.error("Error fetching rooms:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
+  app.use("/api", apiRouter);
+  app.use("/api/auth", authRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

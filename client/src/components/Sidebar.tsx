@@ -11,8 +11,10 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Sidebar() {
+  const { user, logout } = useAuth();
   const menuItems = [
     { name: 'Tổng Quan', icon: LayoutDashboard, href: '/admin/dashboard' },
     { name: 'Quản Lý Phòng', icon: BedDouble, href: '/admin/rooms' },
@@ -66,15 +68,18 @@ export function Sidebar() {
         <div className="p-6 border-t border-neutral-900">
           <div className="flex items-center gap-4 mb-6 px-2">
             <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-700">
-              <img src="https://picsum.photos/seed/admin/100/100" alt="Admin" referrerPolicy="no-referrer" />
+              <img src={user?.avatar || "https://picsum.photos/seed/admin/100/100"} alt="Admin" referrerPolicy="no-referrer" />
             </div>
-            <div>
-              <p className="text-xs font-semibold text-neutral-200">Quản trị viên</p>
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Giám Đốc Điều Hành</p>
+            <div className="overflow-hidden">
+              <p className="text-xs font-semibold text-neutral-200 truncate">{user?.name || 'Quản trị viên'}</p>
+              <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold truncate mt-0.5">{user?.email || 'admin@laselva.com'}</p>
             </div>
           </div>
           
-          <button className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all text-sm font-medium group">
+          <button 
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all text-sm font-medium group"
+          >
             <LogOut size={16} className="transition-transform group-hover:-translate-x-1" />
             Đăng xuất
           </button>

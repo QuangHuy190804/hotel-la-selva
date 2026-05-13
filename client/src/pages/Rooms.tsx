@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { motion } from 'motion/react';
 import { Search, Filter, SlidersHorizontal, Users, Calendar } from 'lucide-react';
-import { MOCK_ROOMS } from '../constants';
 import { RoomCard } from '../components/RoomCard';
 import { cn } from '../lib/utils';
 import { useSearchParams } from 'react-router-dom';
+import { Room } from '../types';
 
 export default function Rooms() {
   const [searchParams] = useSearchParams();
@@ -17,9 +17,25 @@ export default function Rooms() {
   const [activeType, setActiveType] = React.useState('Tất Cả');
   const types = ['Tất Cả', 'Suite', 'Deluxe', 'Executive', 'Family'];
 
+  const [rooms, setRooms] = React.useState<Room[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetch('/api/rooms')
+      .then(res => res.json())
+      .then(data => {
+        setRooms(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
   const typeFilteredRooms = activeType === 'Tất Cả' 
-    ? MOCK_ROOMS 
-    : MOCK_ROOMS.filter(r => r.type === activeType);
+    ? rooms 
+    : rooms.filter(r => r.type === activeType);
 
   const filteredRooms = requestedCapacity > 0
     ? typeFilteredRooms.filter(r => r.capacity >= requestedCapacity)

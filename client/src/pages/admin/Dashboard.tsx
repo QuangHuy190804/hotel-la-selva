@@ -12,13 +12,33 @@ import {
   Bell
 } from 'lucide-react';
 import { formatCurrency, cn } from '../../lib/utils';
-import { MOCK_RESERVATIONS, MOCK_ROOMS } from '../../constants';
+import { Reservation, Room } from '../../types';
 
 export default function AdminDashboard() {
+  const [metrics, setMetrics] = React.useState<any>(null);
+  const [recentBookings, setRecentBookings] = React.useState<Reservation[]>([]);
+  const [rooms, setRooms] = React.useState<Room[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    Promise.all([
+      fetch('/api/metrics').then(res => res.json()),
+      fetch('/api/bookings').then(res => res.json()),
+      fetch('/api/rooms').then(res => res.json())
+    ]).then(([metricsData, bookingsData, roomsData]) => {
+      setMetrics(metricsData);
+      setRecentBookings(bookingsData.slice(0, 5)); // Just show 5 recent
+      setRooms(roomsData);
+      setLoading(false);
+    }).catch(console.error);
+  }, []);
+
+  if (loading || !metrics) return <div className="p-8 lg:ml-72 text-center">Đang tải dữ liệu...</div>;
+
   const stats = [
-    { label: 'Tổng Doanh Thu', value: formatCurrency(3112500000), trend: '+12.5%', icon: TrendingUp, positive: true },
-    { label: 'Đặt Phòng Hiện Tại', value: '42', trend: '+5', icon: CalendarCheck, positive: true },
-    { label: 'Tỉ Lệ Lấp Đầy', value: '88%', trend: '-2%', icon: BedDouble, positive: false },
+    { label: 'Tổng Doanh Thu', value: formatCurrency(metrics.revenue || 0), trend: '+12.5%', icon: TrendingUp, positive: true },
+    { label: 'Đặt Phòng Hiện Tại', value: metrics.activeGuests || 0, trend: '+5', icon: CalendarCheck, positive: true },
+    { label: 'Tỉ Lệ Lấp Đầy', value: `${Math.round(((metrics.totalInventory - metrics.availableRooms) / (metrics.totalInventory || 1)) * 100)}%`, trend: '-2%', icon: BedDouble, positive: false },
     { label: 'Đánh Giá Của Khách', value: '4.9', trend: '+0.1', icon: Users, positive: true },
   ];
 
@@ -95,18 +115,20 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-50">
-                {MOCK_RESERVATIONS.map((res) => (
+                {recentBookings.map((res) => (
                   <tr key={res.id} className="hover:bg-neutral-50/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-[10px]">
-                          {res.guestName.split(' ').map(n => n[0]).join('')}
+                          {res.guestName?.split(' ').map(n => n[0]).join('')}
                         </div>
                         <span className="text-sm font-medium text-neutral-900">{res.guestName}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-neutral-500">{res.roomName}</td>
-                    <td className="px-6 py-4 text-xs font-mono text-neutral-400">{res.checkIn} → {res.checkOut}</td>
+                    <td className="px-6 py-4 text-xs font-mono text-neutral-400">
+                      {new Date(res.checkIn).toLocaleDateString()} → {new Date(res.checkOut).toLocaleDateString()}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={cn(
                         "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
@@ -134,7 +156,7 @@ export default function AdminDashboard() {
           </div>
           
           <div className="space-y-6">
-            {MOCK_ROOMS.map((room) => (
+            {rooms.map((room) => (
               <div key={room.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm">

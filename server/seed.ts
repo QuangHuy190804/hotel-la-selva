@@ -1,0 +1,123 @@
+import { Room } from './models/Room.js';
+import { User } from './models/User.js';
+import crypto from 'crypto';
+
+export const MOCK_ROOMS = [
+  {
+    name: 'Phòng Deluxe Không Cửa Sổ',
+    description: 'Phòng giường đôi/hai giường đơn có máy điều hòa, ấm đun nước điện và TV màn hình phẳng. Không gian tĩnh lặng hoàn hảo cho một đêm ngon giấc.',
+    type: 'Deluxe',
+    pricePerNight: 2000000,
+    capacity: 2,
+    beds: '1 GIƯỜNG ĐÔI HOẶC 2 GIƯỜNG ĐƠN',
+    size: '22 m2',
+    amenities: ['Điều hòa', 'TV màn hình phẳng', 'WiFi miễn phí', 'Ấm đun nước'],
+    images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2070&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: false,
+    view: 'Không cửa sổ',
+  },
+  {
+    name: 'Phòng Deluxe Hướng Thành Phố',
+    description: 'Phòng giường đôi/hai giường đơn này có điều hòa, ấm đun nước, TV màn hình phẳng và cửa sổ lớn với tầm nhìn thoáng ra khu Phố Cổ.',
+    type: 'Deluxe',
+    pricePerNight: 2400000,
+    capacity: 2,
+    beds: '1 GIƯỜNG ĐÔI HOẶC 2 GIƯỜNG ĐƠN',
+    size: '25 m2',
+    amenities: ['Hướng thành phố', 'Điều hòa', 'TV màn hình phẳng', 'WiFi miễn phí'],
+    images: ['https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1974&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: false,
+    view: 'Thành phố',
+  },
+  {
+    name: 'Phòng Executive Hướng Thành Phố',
+    description: 'Phòng Suite có máy điều hòa, ấm đun nước điện, TV màn hình phẳng và tầm nhìn tuyệt đẹp ra quang cảnh thành phố. Phòng có 1 giường lớn.',
+    type: 'Executive',
+    pricePerNight: 3000000,
+    capacity: 2,
+    beds: '1 GIƯỜNG KING',
+    size: '35 m2',
+    amenities: ['Hướng thành phố', 'Điều hòa', 'Quầy bar mini', 'Bồn tắm'],
+    images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1974&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: true,
+    view: 'Thành phố',
+  },
+  {
+    name: 'Phòng Junior Suite Có Ban Công',
+    description: 'Có ban công nhìn ra thành phố, phòng Suite này được trang bị máy điều hòa và TV màn hình phẳng. Phòng cung cấp 1 giường King lớn.',
+    type: 'Suite',
+    pricePerNight: 3800000,
+    capacity: 2,
+    beds: '1 GIƯỜNG KING',
+    size: '40 m2',
+    amenities: ['Ban công', 'Hướng thành phố', 'Điều hòa', 'Bồn tắm'],
+    images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2070&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: false,
+    view: 'Thành phố',
+  },
+  {
+    name: 'Phòng Family Suite Có Ban Công',
+    description: 'Với ban công hướng thành phố, phòng gia đình này cũng cung cấp máy điều hòa và TV màn hình phẳng. Không gian lý tưởng cho cả gia đình.',
+    type: 'Suite',
+    pricePerNight: 4500000,
+    capacity: 4,
+    beds: '2 GIƯỜNG QUEEN',
+    size: '50 m2',
+    amenities: ['Ban công', 'Hướng thành phố', 'Điều hòa', 'Bồn tắm'],
+    images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=2070&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: true,
+    view: 'Thành phố',
+  },
+  {
+    name: 'Phòng Deluxe Family',
+    description: 'Phòng gia đình có điều hòa, ấm đun nước điện, TV màn hình phẳng và cửa sổ nhìn ra thành phố. Hoàn hảo cho kỳ nghỉ của gia đình nhỏ.',
+    type: 'Family',
+    pricePerNight: 4000000,
+    capacity: 4,
+    beds: '1 GIƯỜNG KING & 1 GIƯỜNG ĐƠN',
+    size: '45 m2',
+    amenities: ['Hướng thành phố', 'Điều hòa', 'TV màn hình phẳng', 'Quầy bar mini'],
+    images: ['https://images.unsplash.com/photo-1598928506311-c55dd1b3128d?q=80&w=2070&auto=format&fit=crop'],
+    location: 'Hà Nội',
+    status: 'available',
+    isRareFind: false,
+    view: 'Thành phố',
+  }
+];
+
+export async function seedDatabase() {
+  try {
+    const roomCount = await Room.countDocuments();
+    if (roomCount === 0) {
+      console.log('Seeding initial rooms to database...');
+      await Room.insertMany(MOCK_ROOMS);
+      console.log('Successfully seeded rooms.');
+    }
+
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    if (adminCount === 0) {
+      console.log('Seeding default admin account...');
+      const adminPassword = crypto.createHash('sha256').update('admin123').digest('hex');
+      const admin = new User({
+        name: 'Super Admin',
+        email: 'admin@laselva.com',
+        password: adminPassword,
+        role: 'admin'
+      });
+      await admin.save();
+      console.log('Successfully seeded default admin account.');
+    }
+  } catch (error) {
+    console.error('Error seeding database:', error);
+  }
+}

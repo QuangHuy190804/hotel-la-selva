@@ -30,12 +30,15 @@ export interface Room {
 export interface Reservation {
   id: string;
   roomId: string;
-  guestId: string;
+  guestId?: string;
   checkIn: string;
   checkOut: string;
   status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
   totalPrice: number;
   guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  guests: number;
   roomName: string;
 }
 
